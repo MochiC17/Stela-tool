@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stela｜Frequency System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       background-color: #f4f6f9;
       font-family: 'Segoe UI', sans-serif;
       color: #333;
       padding: 2rem;
-      max-width: 700px;
+      max-width: 800px;
       margin: auto;
     }
     h1 { text-align: center; }
@@ -28,12 +28,14 @@
       padding: 1rem;
       white-space: pre-wrap;
     }
+    canvas {
+      background: #fff;
+      padding: 1rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Stela｜Frequency Calculator</h1>
-
-  <div class="section">
+  <h1>Stela｜Frequency Calculator</h1>  <div class="section">
     <label>Your frequency (8 digits):</label>
     <input id="you" placeholder="e.g. 19881211" />
     <label>Daughter's frequency (12 digits):</label>
@@ -42,18 +44,18 @@
     <input id="lintao" placeholder="e.g. 19931121" />
     <label>Variable frequency (date, code...):</label>
     <input id="variable" placeholder="e.g. 20250409" />
-  </div>
-
-  <div class="section">
+  </div>  <div class="section">
     <button onclick="runCombination('you')">Run: You + Variable</button>
     <button onclick="runCombination('you-daughter')">Run: You + Daughter + Variable</button>
     <button onclick="runCombination('you-lintao')">Run: You + Lintao + Variable</button>
     <button onclick="runCombination('all')">Run: You + Daughter + Lintao + Variable</button>
-  </div>
-
-  <div class="section" id="result">Result will appear here...</div>
-
-  <script>
+  </div>  <div class="section">
+    <label>Run whole month (e.g. 2025-04):</label>
+    <input id="monthInput" placeholder="YYYY-MM" />
+    <button onclick="runMonthlyChart()">Generate Monthly Chart</button>
+  </div>  <div class="section" id="result">Result will appear here...</div>  <div class="section">
+    <canvas id="monthlyChart" height="300"></canvas>
+  </div>  <script>
     function parseInput(str) {
       return str.split('').map(n => parseInt(n)).filter(n => !isNaN(n));
     }
@@ -76,6 +78,7 @@
       }
       return {
         clarity: clarity + "%",
+        clarityValue: clarity,
         variables,
         upgrade,
         tag
@@ -100,6 +103,41 @@
         `Upgradeable: ${result.upgrade}\n` +
         `Status: ${result.tag}`;
     }
-  </script>
-</body>
+
+    function runMonthlyChart() {
+      const you = parseInput(document.getElementById('you').value);
+      const input = document.getElementById('monthInput').value.trim();
+      const [year, month] = input.split('-');
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const labels = [], data = [];
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayStr = day.toString().padStart(2, '0');
+        const variable = parseInput(`${year}${month}${dayStr}`);
+        const full = [...you, ...variable];
+        const result = evaluateFrequency(full);
+        labels.push(`${month}/${dayStr}`);
+        data.push(result.clarityValue);
+      }
+
+      new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Clarity % per Day',
+            data: data,
+            borderColor: '#444',
+            backgroundColor: 'rgba(0,0,0,0)',
+            tension: 0.3
+          }]
+        },
+        options: {
+          scales: {
+            y: { min: 0, max: 100 }
+          }
+        }
+      });
+    }
+  </script></body>
 </html>
