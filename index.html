@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stela｜Frequency System</title>
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      padding: 2rem;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 { text-align: center; }
+    input, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .section { margin-bottom: 2rem; }
+    #result {
+      background: #fff;
+      border-left: 4px solid #444;
+      padding: 1rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Stela｜Frequency Calculator</h1>
+
+  <div class="section">
+    <label>Your frequency (8 digits):</label>
+    <input id="you" placeholder="e.g. 19881211" />
+    <label>Daughter's frequency (12 digits):</label>
+    <input id="daughter" placeholder="e.g. 201711111139" />
+    <label>Lintao's frequency (8 digits):</label>
+    <input id="lintao" placeholder="e.g. 19931121" />
+    <label>Variable frequency (date, code...):</label>
+    <input id="variable" placeholder="e.g. 20250409" />
+  </div>
+
+  <div class="section">
+    <button onclick="runCombination('you')">Run: You + Variable</button>
+    <button onclick="runCombination('you-daughter')">Run: You + Daughter + Variable</button>
+    <button onclick="runCombination('you-lintao')">Run: You + Lintao + Variable</button>
+    <button onclick="runCombination('all')">Run: You + Daughter + Lintao + Variable</button>
+  </div>
+
+  <div class="section" id="result">Result will appear here...</div>
+
+  <script>
+    function parseInput(str) {
+      return str.split('').map(n => parseInt(n)).filter(n => !isNaN(n));
+    }
+
+    function evaluateFrequency(frequency) {
+      const ones = frequency.filter(n => n === 1).length;
+      const total = frequency.length;
+      const clarity = Math.round((ones / total) * 100);
+      const variables = frequency.filter(n => n !== 1);
+      const upgrade = variables.length === 0;
+      let tag = '';
+      if (upgrade) {
+        tag = "System is fully pure. Ready to activate.";
+      } else if (clarity >= 75 && variables.length === 1) {
+        tag = "High-frequency with one variable. Nearly stable.";
+      } else if (clarity >= 50) {
+        tag = "Mid-frequency with mixed clarity. Caution advised.";
+      } else {
+        tag = "Low-frequency blend. Avoid activation.";
+      }
+      return {
+        clarity: clarity + "%",
+        variables,
+        upgrade,
+        tag
+      };
+    }
+
+    function runCombination(mode) {
+      const you = parseInput(document.getElementById('you').value);
+      const daughter = parseInput(document.getElementById('daughter').value);
+      const lintao = parseInput(document.getElementById('lintao').value);
+      const variable = parseInput(document.getElementById('variable').value);
+      let full = [...you];
+      if (mode === 'you-daughter') full = [...you, ...daughter];
+      if (mode === 'you-lintao') full = [...you, ...lintao];
+      if (mode === 'all') full = [...you, ...daughter, ...lintao];
+      full = [...full, ...variable];
+      const result = evaluateFrequency(full);
+      document.getElementById('result').textContent =
+        `Input: ${full.join(', ')}\n\n` +
+        `Transparency: ${result.clarity}\n` +
+        `Variables: ${result.variables.join(', ')}\n` +
+        `Upgradeable: ${result.upgrade}\n` +
+        `Status: ${result.tag}`;
+    }
+  </script>
+</body>
+</html>
