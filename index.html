@@ -65,23 +65,29 @@
       const total = frequency.length;
       const clarity = Math.round((ones / total) * 100);
       const variables = frequency.filter(n => n !== 1);
-      const upgrade = variables.length === 0;
-      let tag = '';
-      if (upgrade) {
-        tag = "System is fully pure. Ready to activate.";
-      } else if (clarity >= 75 && variables.length === 1) {
-        tag = "High-frequency with one variable. Nearly stable.";
-      } else if (clarity >= 50) {
-        tag = "Mid-frequency with mixed clarity. Caution advised.";
+      let grade = '', advice = '';
+      if (clarity === 100) {
+        grade = 'P';
+        advice = 'Perfect clarity. Ready for complete structural activation.';
+      } else if (clarity >= 85 && variables.length <= 1) {
+        grade = 'T';
+        advice = 'High clarity and minor variable. Suitable for confident alignment.';
+      } else if (clarity >= 65 && variables.length <= 3) {
+        grade = 'M';
+        advice = 'Moderate clarity with manageable variables. Short-term progression recommended.';
+      } else if (clarity >= 45 && variables.length <= 6) {
+        grade = 'L';
+        advice = 'Low clarity. Caution advised. Best used for sensing, not execution.';
       } else {
-        tag = "Low-frequency blend. Avoid activation.";
+        grade = 'V';
+        advice = 'Dispersed or disruptive pattern. Avoid activation and isolate variables.';
       }
       return {
         clarity: clarity + "%",
         clarityValue: clarity,
         variables,
-        upgrade,
-        tag
+        grade,
+        advice
       };
     }
 
@@ -100,8 +106,8 @@
         `Input: ${full.join(', ')}\n\n` +
         `Transparency: ${result.clarity}\n` +
         `Variables: ${result.variables.join(', ')}\n` +
-        `Upgradeable: ${result.upgrade}\n` +
-        `Status: ${result.tag}`;
+        `Upgrade Level: ${result.grade}\n` +
+        `Advice: ${result.advice}`;
     }
 
     function runMonthlyChart() {
